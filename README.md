@@ -26,9 +26,7 @@ Die Anzeige erfolgt über einen beliebigen Browser.
 - goto http://192.168.4.1/upload
 - upload index.html and entireframework.css
 - goto http://192.168.4.1
-- done - now you should see the GUI like [my_EPEVER_AP_v1_0.png]  =)
+- done - now you should see the GUI  
 
-
-
-
+https://github.com/claasworks/EPEVER-Tracer-ESP8266-AP/blob/main/my_EPEVER_AP_v1_0.png
 

@@ -1,3 +1,8 @@
+// define template - epever_rs485_v3.ino  	by Paul Campbell 
+// entire ModBus Register Address List 		by Beijing Epsolar Technology Co., Ltd.
+// 1733_modbus_protocol.pdf
+
+
 //3100
 #define PANEL_VOLTS     0x00
 #define PANEL_AMPS      0x01

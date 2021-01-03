@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<meta name="author" content="www.claasworks.de" />
+		<meta name="robots" content="nofollow"/>
+		<meta name="keywords" content="EPEVER, tracer , ESP8266, Access Point, MODBUS"/>
+		
+		<title>my EPEVER AP</title>
+		
+		<link href="./css/entireframework.css" rel="stylesheet" type="text/css">
+		<style>
+			/* CSS - Cascading Style Sheet */
+		</style>
+	</head>
+	<body>
+<!-- top navigation -->	
+		<nav class="nav" tabindex="-1" onclick="this.focus()">
+			<div class="container">
+				<span><a class="pagename current" href="#">my EPEVER AP </a></span>
+				<span class="paratop current" id="Energy_D_gen" style="color:red"> [0.00 kWh] </span> 
+				<span class="paratop current" id="Energy_D_con" style="color:#55AA55"> [0.00 kWh] </span>
+				<span class="paratop current" id="Controller_time" style="color:white"> [00:00]	</span>			
+				<span>	
+					<a href="./reboot">Reboot ESP</a>
+					<a href="./upload">Upload ESP</a> 
+				</span>				
+			</div>	
+		</nav>
+<!-- info container -->
+		<div class="container">
+			<div class="row">
+				<div class="col c3">		
+				<fieldset>
+					<legend>Solar Information</legend>
+						<span class="inf_tag">Current</span>
+						<span class="inf_tag_1"></span>
+						<span class="inf_tag_1" id="Solar_Current_akt">0.00 </span>
+						<span class="inf_tag_1"></span>A<br>
+						<span class="inf_tag" class="inf_tag">Voltage </span>
+						<span class="inf_tag_1" id="Solar_Voltage_min">0.00 </span>
+						<span class="inf_tag_1" id="Solar_Voltage_akt">0.00 </span>
+						<span class="inf_tag_1" id="Solar_Voltage_max">0.00 </span>V<br>						
+						<span class="inf_tag">Power</span>
+						<span class="inf_tag_1"></span>
+						<span class="inf_tag_1" id="Solar_Power">0.00 </span> 
+						<span class="inf_tag_1"></span>W<br>
+						<br>
+						<span class="inf_tag">Status</span><span id="Solar_Status">n/a</span><br>
+				</fieldset>
+				</div>
+				<div class="col c3">		
+				<fieldset>
+					<legend>Battery Information</legend>
+						<span class="inf_tag">Current </span>
+						<span class="inf_tag_1"></span>
+						<span class="inf_tag_1" id="Battery_Current_akt">0.00 </span>
+						<span class="inf_tag_1"></span>A<br>						
+						<span class="inf_tag" class="inf_tag">Voltage </span>
+						<span class="inf_tag_1" id="Battery_Voltage_min">0.00 </span> 
+						<span class="inf_tag_1" id="Battery_Voltage_akt">0.00 </span> 
+						<span class="inf_tag_1" id="Battery_Voltage_max">0.00 </span>V<br>
+						<span class="inf_tag">Temp.</span>
+						<span class="inf_tag_1"></span>
+						<span class="inf_tag_1" id="Battery_Temp">0.00</span>
+						<span class="inf_tag_1"></span>°C<br>
+						<span class="inf_tag">SOC </span>
+						<span class="inf_tag_1"></span>
+						<span class="inf_tag_1" id="Battery_SOC">0.00</span>
+						<span class="inf_tag_1"></span>	%<br>
+						<br>	
+						<span class="inf_tag_2">Charging Status</span><span id="Battery_Charging_Status">n/a</span><br>				
+						<span class="inf_tag_2">Status Battery</span><span id="Battery_Status">n/a</span><br>
+						<span class="inf_tag_2">Status Temp.</span><span id="Battery_Status_tmp">n/a</span><br>						
+						<span class="inf_tag_2">Battery inerternal resistance</span><span id="Battery_Status_res">n/a</span><br>	
+				</fieldset>
+				</div>
+				<div class="col c3">		
+				<fieldset  class="fieldset1">
+					<legend>DC Load Information</legend>
+						<span class="inf_tag">Current </span><span id="Load_Current">0.00 </span> A<br>
+						<span class="inf_tag">Voltage </span><span id="Load_Voltage">0.00 </span> V<br>
+						<span class="inf_tag">Power </span><span id="Load_Power">0.00 </span> W<br>
+						<span class="inf_tag">Mode </span><span id="Load_Status_mode">n/a</span><br>
+						<span class="inf_tag">Status </span><span id="Load_Status">n/a</span><br>
+											
+				</fieldset>
+				<br>
+				<fieldset class="fieldset1">
+					<legend>Load Control</legend>
+						<br>
+						<a href="#" id="LoadBtn" class="btn btn-sm btn-b">Load</a>	
+				</fieldset>				
+				</div>
+				<div class="col c3">		
+				<fieldset>
+					<legend>Controller Information</legend>
+				<span class="inf_tag_2">Device Temp.</span><span id="Controller_Device_Temp">0.00</span> °C<br>
+				<br>
+				<span class="inf_tag_2">Device Status</span><span id="Controller_Device_Status">n/a</span><br>
+				<br>
+				<span id="Controller_Device_StatusError">none</span><br>
+				</fieldset>
+
+				</div>
+			</div>
+		</div>
+		
+<!-- set values container -->		
+		<div class="container">
+			<div class="row">
+				<div class="col c12">
+					<br> 
+					<a onclick="setDemoValues()" class="btn btn-sm btn-a">set demo values</a>
+					<a onclick="UpdateAllCharts()" class="btn btn-sm btn-d">set ESP values now</a>
+				</div>
+			</div>
+		</div>
+		
+<!-- canvas container -->	
+		<div class="container">
+			<div class="row">
+				<div class="col c4">					
+					<canvas id = "mycanvasDataSolar" width="300" height="200"></canvas>
+				</div>
+				<div class="col c4">
+					<canvas id = "mycanvasDataBattery" width="300" height="200"></canvas>
+				</div>
+				<div class="col c4">
+					<canvas id = "mycanvasDataLoad" width="300" height="200"></canvas>
+				</span>
+				</div>
+			</div>
+		</div>	
+		
+<!-- demo css color scheme container -->
+		<div class="container">
+			<div class="row">
+				<div class="col c12"> css color scheme <br><br>
+				<span class = "color-primary-0" >0</span>
+				<span class = "color-primary-1" >1</span>
+				<span class = "color-primary-2" >2</span>
+				<span class = "color-primary-3" >3</span>
+				<span class = "color-primary-4" >4</span>
+				<br><br>
+				</div>
+			</div>
+		</div>
+
+<!-- raw Data from ESP container -->		
+		<div class="container">
+			<div class="row">
+				<div class="col c12">
+					<br> 
+				<fieldset class="fieldset1">
+					<legend>Controller Information raw Data</legend>
+				<span  id="Controller_Device_rawData"></span><br>
+				</fieldset>
+				</div>
+			</div>
+		</div>
+
+
+<script>
+
+//////////////////////////////////////////////////////
+//tutorial: https://circuits4you.com/2018/02/04/esp8266-ajax-update-part-of-web-page-without-refreshing/
+ var UpdateChartTime = 60;
+	// Call a function repetatively with 60 Second interval
+	setInterval(function() {
+		//getValuesXhttp();
+		UpdateAllCharts();
+	}, UpdateChartTime* 1000); //mSeconds update rate
+
+	function UpdateAllChartTime(timeInt){
+		UpdateChartTime = timeInt;
+	}
+
+
+//tutorial: https://www.w3schools.com/js/js_json_parse.asp 
+	var htmlDBdata  = '{ "Energy":["0.02", "0.68"] , "Solar":["0.52", "12.91", "14.03", "14.09", "7.41", "Input volt normal"] , "Battery":["0.59", "0.60","12.57", "12.61", "24.08", "54", "0", "normal Volt"] , "Load":["0.56", "12.57", "7.03", "0", "1"] , "Controller":["27.46", "27.46", "0.00", "0", "9:55:44", "22.12.20" ] , "EquipmentStatus":[ "Input volt normal" , "" , "" , "" , "" , "" , "" , "" , "" , "Boost" , "Fault" , "Running" , "0000000000001011" , "11", "normal Volt" , "normal Temp." , "normal" , "" , "0000000000000000" , "0" ] }';
+	var EquipmentStatusTxT ="";
+	
+	function setDemoValues(){
+	    htmlDBdata  = '{ "Energy":["0.02", "0.68"] , "Solar":["0.52", "12.91", "14.03", "14.09", "7.41", "Input volt normal"] , "Battery":["0.59", "0.60","12.57", "12.61", "24.08", "54", "0", "normal Volt"] , "Load":["0.56", "12.57", "7.03", "0", "1"] , "Controller":["27.46", "27.46", "0.00", "0", "9:55:44", "22.12.20" ] , "EquipmentStatus":[ "Input volt normal" , "" , "" , "" , "" , "" , "" , "" , "" , "Boost" , "Fault" , "Running" , "0000000000001011" , "11", "normal Volt" , "normal Temp." , "normal" , "" , "0000000000000000" , "0" ] }';
+		pushDataCharts();	
+
+		setValuesToHtml();
+	
+		drawChartData('mycanvasDataSolar');
+		drawChartData('mycanvasDataBattery');
+		drawChartData('mycanvasDataLoad');
+	}
+	
+// HTML set values ////////////////////////////////////////////////////
+	function setValuesToHtml(){
+
+		document.getElementById("Controller_Device_rawData").innerHTML = htmlDBdata;
+	
+		var obj = JSON.parse(htmlDBdata); 
+		var ErrorCnt = 0;
+		document.getElementById("Solar_Current_akt").innerHTML = obj["Solar"][0];
+		document.getElementById("Solar_Voltage_min").innerHTML = obj["Solar"][1];		
+		document.getElementById("Solar_Voltage_akt").innerHTML = obj["Solar"][2];
+		document.getElementById("Solar_Voltage_max").innerHTML = obj["Solar"][3];		
+		document.getElementById("Solar_Power").innerHTML = obj["Solar"][4];
+		document.getElementById("Solar_Status").innerHTML = obj["Solar"][5];
+		
+		document.getElementById("Battery_Current_akt").innerHTML = obj["Battery"][0];	
+		document.getElementById("Battery_Voltage_min").innerHTML = obj["Battery"][1];
+		document.getElementById("Battery_Voltage_akt").innerHTML = obj["Battery"][2];
+		document.getElementById("Battery_Voltage_max").innerHTML = obj["Battery"][3];		
+  
+		document.getElementById("Battery_Temp").innerHTML = obj["Battery"][4];  
+		document.getElementById("Battery_SOC").innerHTML = obj["Battery"][5];
+		document.getElementById("Battery_Charging_Status").innerHTML = obj["EquipmentStatus"][9];  
+		document.getElementById("Battery_Status").innerHTML = obj["Battery"][7];
+		document.getElementById("Battery_Status_res").innerHTML = obj["EquipmentStatus"][16];
+		document.getElementById("Battery_Status_tmp").innerHTML = obj["EquipmentStatus"][15];
+		
+		document.getElementById("Load_Current").innerHTML = obj["Load"][0];
+		document.getElementById("Load_Voltage").innerHTML = obj["Load"][1];
+		document.getElementById("Load_Power").innerHTML = obj["Load"][2];
+				
+		if (obj["Load"][3]== "0") 			document.getElementById("Load_Status_mode").innerHTML = "manual control";
+		if (obj["Load"][3]== "1") 			document.getElementById("Load_Status_mode").innerHTML = "light control";
+		if (obj["Load"][3]== "2") 			document.getElementById("Load_Status_mode").innerHTML = "light control + timer";
+		if (obj["Load"][3]== "3") 			document.getElementById("Load_Status_mode").innerHTML = "time control";
+		
+		if (obj["Load"][4]== "1"){
+			document.getElementById("LoadBtn").className  = "btn btn-sm btn-c"; 
+			document.getElementById("Load_Status").innerHTML = "manual on";
+
+			}
+		else{
+			document.getElementById("LoadBtn").className  = "btn btn-sm btn-a";
+			document.getElementById("Load_Status").innerHTML = "manual off";
+			}
+			
+  		document.getElementById("Energy_D_con").innerHTML = obj["Energy"][0];
+		document.getElementById("Energy_D_gen").innerHTML = obj["Energy"][1];
+
+		document.getElementById("Controller_time").innerHTML = obj["Controller"][3] + obj["Controller"][4];
+		
+		document.getElementById("Controller_Device_Temp").innerHTML = obj["Controller"][0] + " / " + obj["Controller"][1];		
+		document.getElementById("Controller_Device_Status").innerHTML =obj["EquipmentStatus"][11];	
+		
+		EquipmentStatusTxT = ""; 	
+			
+			for (var i=1; i<9; i++){
+			  if (obj["EquipmentStatus"][i] != ""){
+				EquipmentStatusTxT += obj["EquipmentStatus"][i] + " <br> ";
+				ErrorCnt++;
+				}
+			}
+			if (ErrorCnt == 0)
+				EquipmentStatusTxT = "no error";	
+				
+  		document.getElementById("Controller_Device_StatusError").innerHTML = EquipmentStatusTxT;	 		
+	}
+		
+// ESP readData ////////////////////////////////////////////////////
+ 
+	function getValuesXhttp(){
+
+	var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+		
+		if (this.readyState == 4 && this.status == 200) {
+			htmlDBdata = this.responseText;
+			setValuesToHtml();
+			}
+		};
+		xhttp.open("GET", "./readData", true); //Handle readData server on ESP8266
+		xhttp.send();
+	}
+
+// Charts ////////////////////////////////////////////////////
+//						  Solar_Current		 	Solar_Voltage		  Solar_Power
+	var Solar_A 	= [  [0,0,0,0,0,0,0,0],  [0,0,0,0,0,0,0,0],  [0,0,0,0,0,0,0,0] ];
+//						  Battery_Current_akt	Battery_Voltage_akt   Battery_SOC
+	var Battery_A 	= [  [0,0,0,0,0,0,0,0],  [0,0,0,0,0,0,0,0],  [0,0,0,0,0,0,0,0] ];	
+//						  Load_Current		  	Load_Voltage  	      Load_Power
+	var Load_A 		= [  [0,0,0,0,0,0,0,0],  [0,0,0,0,0,0,0,0],  [0,0,0,0,0,0,0,0] ];	
+
+	//  	J
+	// I 0	0,0,0,0,0,0,0,111
+	//	 1	0,0,0,0,0,0,0,222
+	//	 2	0,0,0,0,0,0,0,322
+
+
+	function pushDataCharts(){
+
+		var obj = JSON.parse(htmlDBdata);    
+		var lengthArray = 7;
+
+		//console.log(Solar_A.join('\n') + '\n\n');	
+			for (var i=0; i<3; i++){
+				Solar_A[i].shift();
+			}
+	
+			Solar_A[0].push(parseInt(obj["Solar"][0]*100));
+			Solar_A[1].push(parseInt(obj["Solar"][2]*10));
+			Solar_A[2].push(parseInt(obj["Solar"][4]*10));
+					
+		//console.log(Solar_A.join('\n') + '\n\n');	
+			for (var i=0; i<3; i++){
+				Battery_A[i].shift();
+			}
+		
+			Battery_A[0].push(parseInt(obj["Battery"][0]*100));
+			Battery_A[1].push(parseInt(obj["Battery"][2]*10));
+			Battery_A[2].push(parseInt(obj["Battery"][5]));
+			
+		//console.log(Battery_A.join('\n') + '\n\n');	
+			for (var i=0; i<3; i++){
+				Load_A[i].shift();
+			}
+			
+			Load_A[0].push(parseInt(obj["Load"][0]*100));
+			Load_A[1].push(parseInt(obj["Load"][1]*10));
+			Load_A[2].push(parseInt(obj["Load"][2]*10));
+		//console.log(Load_A.join('\n') + '\n\n');		
+	}
+
+
+	function drawChartData(ChartID) {
+	
+		if (ChartID == "mycanvasDataSolar")  { 	var DataA = Solar_A ; 	var ctxText = "Solar"; }
+		if (ChartID == "mycanvasDataBattery"){ 	var DataA = Battery_A ;	var ctxText = "Battery"; }
+		if (ChartID == "mycanvasDataLoad") 	 {	var DataA = Load_A ;	var ctxText = "Load"; }
+		
+		var posi_x = 50; 
+		// get the canvas element using the DOM
+        var canvas = document.getElementById(ChartID);
+		// Make sure we don't execute when canvas isn't supported
+        if (canvas.getContext) {
+		
+			// use getContext to use the canvas for drawing
+            var ctx = canvas.getContext('2d');
+               
+			ctx.clearRect(0, 0, canvas.width, canvas.height);							
+			ctx.strokeStyle = "#0C0C0C";				
+	
+				
+		// Y
+				ctx.beginPath();					
+				ctx.moveTo(10, 0);
+				ctx.lineTo(10, 200);
+				ctx.stroke();
+		// -		
+				for(var i = canvas.height-20; i > 0; i -= 20) {	
+					ctx.beginPath();
+					ctx.moveTo(10,i);
+					ctx.lineTo( 5,i);
+					ctx.stroke();						
+				}				
+				
+		// =>
+				ctx.beginPath();			   
+				ctx.moveTo(10,0);		   
+				ctx.lineTo(5, 5);
+				ctx.stroke();	
+						   
+				ctx.beginPath();
+				ctx.moveTo(10,0);
+				ctx.lineTo(15, 5);
+				ctx.stroke();	
+				
+				
+		// X
+				ctx.beginPath();					
+				ctx.moveTo(0,canvas.height-20);
+				ctx.lineTo(canvas.width, canvas.height-20);
+				ctx.stroke();			   
+ 
+			   
+		// =>
+				ctx.beginPath();			   
+				ctx.moveTo(canvas.width,canvas.height-20);
+				ctx.lineTo(canvas.width-5, canvas.height-20+5);
+				ctx.stroke();	
+		   
+				ctx.beginPath();
+				ctx.moveTo(canvas.width,canvas.height-20);
+				ctx.lineTo(canvas.width-5, canvas.height-20-5);
+				ctx.stroke();				
+				
+		// | 		
+				for(var i = 10; i < canvas.width-20; i += 40) {	
+					ctx.beginPath();
+					ctx.moveTo(i,canvas.height-20);
+					ctx.lineTo(i, canvas.height-20+5);
+					ctx.stroke();						
+				}
+				
+		// 	draw chart 1
+               ctx.beginPath();
+			   ctx.strokeStyle = "#0000ff";
+               ctx.moveTo(10,	 canvas.height-20 - DataA[0][0]);
+				for(var i = 1; i < 8; i ++) {				   
+					//ctx.lineTo( posi_x, 	 140 - Solar_A[0][i]);
+					ctx.lineTo( posi_x, canvas.height-20 - DataA[0][i]);
+					posi_x += 40;
+					}
+               ctx.stroke();
+				
+			// info last value
+			   ctx.font = "10px Arial";
+			   if (ctxText != "Battery")
+				ctx.fillText(DataA[0][7]/100 + ' I', canvas.width-40, canvas.height-10 - DataA[0][7]); 
+			   else
+			    ctx.fillText(DataA[0][7] + ' %', canvas.width-40, canvas.height-10 - DataA[0][7]); 
+			  
+		// 	draw chart 2			  
+               ctx.beginPath();
+			   ctx.strokeStyle = "#ff0000";	
+			   posi_x = 50; 
+               ctx.moveTo(10,	 canvas.height-20 - DataA[1][0]);
+				for(var i = 1; i < 8; i += 1) {				   
+					ctx.lineTo( posi_x,	 canvas.height-20 - DataA[1][i]);
+					posi_x += 40;
+				}
+               ctx.stroke();
+			   
+			// info last value
+			   ctx.font = "10px Arial";
+			   ctx.fillText(DataA[1][7]/10 + ' V', canvas.width-40, canvas.height-10 - DataA[1][7]); 
+			   
+			   			   
+		// 	draw chart 3
+               ctx.beginPath();
+			   ctx.strokeStyle = "#00ff00";
+			   posi_x = 50; 
+                  ctx.moveTo(10,	 canvas.height-20 - DataA[2][0]);
+				for(var i = 1; i < 8; i += 1) {				   
+					ctx.lineTo( posi_x, 	 canvas.height-20 - DataA[2][i]);
+					posi_x += 40;
+				}
+               ctx.stroke();
+			   
+		   // info last value
+			   ctx.font = "10px Arial";
+			   ctx.fillText(DataA[2][7]/10 + ' W', canvas.width-40, canvas.height-10 - DataA[2][7]); 
+			   
+			   	   ctx.fillText(ctxText, canvas.width-40, canvas.height-10); 
+			 
+            } else {
+               alert('You need Safari or Firefox 1.5+ to see this chart.');
+            }
+		}
+		
+		
+	// update 
+
+	function UpdateAll(ChartID){
+
+		pushDataCharts();	
+
+		setValuesToHtml();
+	
+		drawChartData(ChartID);
+	}
+	
+	function UpdateAllCharts(){
+	
+		getValuesXhttp();
+	
+		pushDataCharts();	
+
+		setValuesToHtml();
+	
+		drawChartData('mycanvasDataSolar');
+		drawChartData('mycanvasDataBattery');
+		drawChartData('mycanvasDataLoad');
+	}
+
+</script>
+</body></html>
